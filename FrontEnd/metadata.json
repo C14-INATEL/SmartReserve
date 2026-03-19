@@ -1,0 +1,5 @@
+{
+  "name": "SmartReserve - Gestão de Recursos",
+  "description": "Sistema para gerenciamento e reserva de salas, laboratórios e equipamentos com agendamento automatizado.",
+  "requestFramePermissions": []
+}
