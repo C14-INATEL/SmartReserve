@@ -1,2 +1,2 @@
 # SmartReserve
-Repositório do desenvolvimento do App SmartReserve
+Repositório dedicado ao schema de usuários no Mongoose
