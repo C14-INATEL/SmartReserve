@@ -10,6 +10,18 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "mongoose": "^9.3.1",
     "mongose": "^0.0.2-security"
-  }
+  },
+  "type": "commonjs",
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  },
+"scripts": {
+  "dev": "nodemon src/server.js",
+  "start": "node src/server.js"
+}
 }
