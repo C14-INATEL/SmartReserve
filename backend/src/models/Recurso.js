@@ -12,7 +12,7 @@ const RecursoSchema = new mongoose.Schema({
   tipo: {
     type: String,
     required: true,
-    enum: ["sala", "laboratorio", "equipamento"]
+    enum: ["room", "laboratory", "equipment"]
   },
   horariosDisponiveis: [{
     diaSemana: {

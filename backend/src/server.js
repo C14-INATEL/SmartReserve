@@ -12,11 +12,11 @@ app.use(express.json());
 app.use("/api", reservationRoutes);
 
 app.get("/", (req, res) => {
-  res.send("SmartReserve API rodando");
+  res.send("SmartReserve API running");
 });
 
 await connectDatabase();
 
 app.listen(3000, () => {
-  console.log("Servidor rodando na porta 3000");
+  console.log("Server running on port: 3000");
 });

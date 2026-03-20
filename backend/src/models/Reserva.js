@@ -8,7 +8,7 @@ const ReservaSchema = new mongoose.Schema({
   },
   recurso: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Recurso",
+    ref: "Feature",
     required: true
   },
   data: {

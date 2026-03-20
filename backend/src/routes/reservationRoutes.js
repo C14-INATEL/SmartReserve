@@ -40,7 +40,7 @@ router.post("/reservations", async (req, res) => {
 
     if (!usuario || !recurso || !data || !horaInicio || !horaFim) {
       return res.status(400).json({
-        message: "Todos os campos são obrigatórios"
+        message: "All fields are required."
       });
     }
 
@@ -49,19 +49,19 @@ router.post("/reservations", async (req, res) => {
 
     if (Number.isNaN(inicioMin) || Number.isNaN(fimMin)) {
       return res.status(400).json({
-        message: "Formato de hora inválido. Use HH:mm (ex: 09:00 ou 14:30)"
+        message: "Invalid time format. Use HH:mm (ex: 09:00 ou 14:30)"
       });
     }
 
     if (inicioMin >= fimMin) {
       return res.status(400).json({
-        message: "Hora de início deve ser menor que a hora de fim"
+        message: "The start time must be earlier than the end time."
       });
     }
 
     const dia = inicioEFimDoDia(data);
     if (!dia) {
-      return res.status(400).json({ message: "Data inválida" });
+      return res.status(400).json({ message: "Invalid date" });
     }
 
     const existentes = await Reserva.find({
@@ -75,7 +75,7 @@ router.post("/reservations", async (req, res) => {
       if (Number.isNaN(eInicio) || Number.isNaN(eFim)) continue;
       if (intervalosSobrepoem(inicioMin, fimMin, eInicio, eFim)) {
         return res.status(400).json({
-          message: "Horário já está reservado para esse recurso"
+          message: "Time slot has already been reserved for this feature."
         });
       }
     }
@@ -92,12 +92,12 @@ router.post("/reservations", async (req, res) => {
     });
 
     return res.status(201).json({
-      message: "Reserva criada com sucesso",
+      message: "Reservation created successfully",
       reserva: novaReserva
     });
   } catch (error) {
     return res.status(500).json({
-      message: "Erro ao criar reserva",
+      message: "Error creating reservation",
       error: error.message
     });
   }
