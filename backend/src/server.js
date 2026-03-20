@@ -1,11 +1,12 @@
+import "dotenv/config";
 import express from "express";
+import cors from "cors";
 import reservationRoutes from "./routes/reservationRoutes.js";
 import connectDatabase from "./config/database.js";
 
 const app = express();
 
-connectDatabase();
-
+app.use(cors());
 app.use(express.json());
 
 app.use("/api", reservationRoutes);
@@ -13,6 +14,8 @@ app.use("/api", reservationRoutes);
 app.get("/", (req, res) => {
   res.send("SmartReserve API rodando");
 });
+
+await connectDatabase();
 
 app.listen(3000, () => {
   console.log("Servidor rodando na porta 3000");
