@@ -18,6 +18,8 @@ export interface Resource {
     end: string;   // e.g., "22:00"
   };
   imageUrl: string;
+  location?: string;
+  capacity?: number;
 }
 
 export interface Booking {
