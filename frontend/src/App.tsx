@@ -27,7 +27,8 @@ import {
   ChevronDown,
   UserCircle,
   Home,
-  Plus
+  Plus,
+  Lock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { format, addDays, startOfToday, isSameDay, isWithinInterval, parse, setHours, isAfter, isBefore, addHours } from 'date-fns';
@@ -117,51 +118,82 @@ export default function App() {
 
   if (!user && view !== 'register') {
     return (
-      <div className="min-h-screen bg-[#f5f5f5] flex items-center justify-center p-4 font-sans">
+      <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-4 font-sans relative overflow-hidden">
+        {/* Background Atmosphere */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-blue-600/20 blur-[140px] rounded-full" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-cyan-600/20 blur-[140px] rounded-full" />
+          <div className="absolute top-[20%] right-[10%] w-[40%] h-[40%] bg-indigo-600/10 blur-[120px] rounded-full" />
+        </div>
+
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white p-8 rounded-3xl shadow-sm w-full max-w-md border border-black/5"
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-md z-10 relative flex flex-col items-center"
         >
-          <div className="flex flex-col items-center mb-8">
-            <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center mb-4">
-              <CalendarIcon className="text-white w-8 h-8" />
-            </div>
-            <h1 className="text-2xl font-semibold tracking-tight">SmartReserve</h1>
-            <p className="text-muted text-sm mt-1">Gestão inteligente de recursos</p>
-          </div>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+            className="w-28 h-28 rounded-full bg-white/5 backdrop-blur-md flex items-center justify-center mb-16 border border-white/10 shadow-2xl"
+          >
+            <UserIcon className="w-14 h-14 text-white/40" />
+          </motion.div>
 
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-muted mb-1.5 block">E-mail</label>
+          <form onSubmit={handleLogin} className="w-full space-y-6">
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+              className="relative"
+            >
+              <UserIcon className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
               <input 
                 type="email" 
                 required 
-                placeholder="exemplo@email.com"
-                className="w-full px-4 py-3 rounded-xl bg-[#f9f9f9] border border-black/5 focus:outline-none focus:ring-2 focus:ring-black/5 transition-all"
+                placeholder="USERNAME"
+                className="w-full pl-14 pr-6 py-4 rounded-full bg-white/5 border border-white/10 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/50 transition-all text-xs font-bold tracking-[0.2em] backdrop-blur-sm"
               />
-            </div>
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-muted mb-1.5 block">Senha</label>
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 }}
+              className="relative"
+            >
+              <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
               <input 
                 type="password" 
                 required 
-                placeholder="••••••••"
-                className="w-full px-4 py-3 rounded-xl bg-[#f9f9f9] border border-black/5 focus:outline-none focus:ring-2 focus:ring-black/5 transition-all"
+                placeholder="PASSWORD"
+                className="w-full pl-14 pr-6 py-4 rounded-full bg-white/5 border border-white/10 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/50 transition-all text-xs font-bold tracking-[0.2em] backdrop-blur-sm"
               />
-            </div>
-            <button 
+            </motion.div>
+
+            <motion.button 
               type="submit"
-              className="w-full bg-black text-white py-3 rounded-xl font-medium hover:bg-black/90 transition-colors mt-2"
+              whileHover={{ scale: 1.02, backgroundColor: "#ffffff", color: "#0f172a" }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full bg-white/10 backdrop-blur-md border border-white/20 text-white py-4 rounded-full font-bold text-xs tracking-[0.3em] shadow-2xl transition-all mt-8 uppercase hover:shadow-blue-500/20"
             >
-              Entrar no Sistema
-            </button>
+              Login
+            </motion.button>
+
+            <div className="flex items-center justify-between px-4 pt-4">
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input type="checkbox" className="w-4 h-4 rounded border-white/10 bg-white/5 text-blue-500 focus:ring-blue-500/40" />
+                <span className="text-[10px] font-bold text-white/30 group-hover:text-white/50 transition-colors tracking-widest uppercase">Remember me</span>
+              </label>
+              <button type="button" className="text-[10px] font-bold text-white/30 hover:text-white transition-colors tracking-widest uppercase">Forgot password?</button>
+            </div>
           </form>
-          
-          <div className="mt-6 text-center">
-            <p className="text-sm text-muted">
-              Não tem uma conta? <button className="text-black font-semibold hover:underline">Cadastre-se</button>
-            </p>
+
+          <div className="mt-20 flex justify-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-white/10" />
+            <div className="w-2 h-2 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)]" />
+            <div className="w-2 h-2 rounded-full bg-white/10" />
           </div>
         </motion.div>
       </div>
@@ -208,31 +240,37 @@ export default function App() {
                         <p className="text-xs font-bold text-muted uppercase tracking-widest">Minha Conta</p>
                       </div>
                       
-                      <button 
+                      <motion.button 
+                        whileHover={{ scale: 1.05, backgroundColor: "rgba(0,0,0,0.05)" }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => { setView('my-bookings'); setIsProfileOpen(false); }}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-muted hover:text-black hover:bg-black/5 rounded-xl transition-all"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-muted hover:text-black rounded-xl transition-all"
                       >
                         <BookOpen className="w-4 h-4" />
                         Minhas Reservas
-                      </button>
+                      </motion.button>
                       
-                      <button 
+                      <motion.button 
+                        whileHover={{ scale: 1.05, backgroundColor: "rgba(0,0,0,0.05)" }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => { setView('settings'); setIsProfileOpen(false); }}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-muted hover:text-black hover:bg-black/5 rounded-xl transition-all"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-muted hover:text-black rounded-xl transition-all"
                       >
                         <Settings className="w-4 h-4" />
                         Configurações
-                      </button>
+                      </motion.button>
                       
                       <div className="h-px bg-black/5 my-2" />
                       
-                      <button 
+                      <motion.button 
+                        whileHover={{ scale: 1.05, backgroundColor: "rgba(239,68,68,0.1)" }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-500 rounded-xl transition-all"
                       >
                         <LogOut className="w-4 h-4" />
                         Sair
-                      </button>
+                      </motion.button>
                     </motion.div>
                   </>
                 )}
@@ -253,21 +291,25 @@ export default function App() {
             {/* Right: Actions */}
             <div className="flex items-center justify-end gap-2">
               {user?.role === 'admin' && (
-                <button 
+                <motion.button 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => setIsCreateModalOpen(true)}
                   className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-black/90 transition-all shadow-sm"
                 >
                   <Plus className="w-4 h-4" />
                   <span className="hidden sm:inline">Novo Recurso</span>
-                </button>
+                </motion.button>
               )}
-              <button 
+              <motion.button 
+                whileHover={{ scale: 1.1, backgroundColor: "rgba(0,0,0,0.05)" }}
+                whileTap={{ scale: 0.9 }}
                 onClick={() => setView('home')}
-                className="p-2 hover:bg-black/5 rounded-full transition-colors text-muted hover:text-black"
+                className="p-2 rounded-full transition-colors text-muted hover:text-black"
                 title="Início"
               >
                 <Home className="w-5 h-5" />
-              </button>
+              </motion.button>
             </div>
           </div>
         </div>
@@ -302,8 +344,10 @@ export default function App() {
                   </div>
                   <div className="flex bg-white border border-black/5 rounded-xl p-1">
                     {(['all', 'room', 'lab', 'equipment'] as const).map((type) => (
-                      <button
+                      <motion.button
                         key={type}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
                         onClick={() => setFilterType(type)}
                         className={cn(
                           "px-4 py-1.5 rounded-lg text-xs font-medium transition-all capitalize",
@@ -311,7 +355,7 @@ export default function App() {
                         )}
                       >
                         {type === 'all' ? 'Todos' : type === 'room' ? 'Salas' : type === 'lab' ? 'Labs' : 'Equip.'}
-                      </button>
+                      </motion.button>
                     ))}
                   </div>
                 </div>
@@ -435,10 +479,13 @@ export default function App() {
 
               <div className="space-y-6">
                 <div className="bg-black text-white rounded-3xl p-8 shadow-xl">
-                  <h3 className="text-xl font-bold mb-4">Reserva Rápida</h3>
+                  <h3 className="text-xl font-bold mb-4 font-display">Reserva Rápida</h3>
                   <p className="text-white/60 text-sm mb-6">Selecione um horário na agenda ao lado para confirmar sua reserva instantaneamente.</p>
                   <div className="space-y-4">
-                    <div className="p-4 bg-white/10 rounded-2xl border border-white/10">
+                    <motion.div 
+                      whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.15)" }}
+                      className="p-4 bg-white/10 rounded-2xl border border-white/10 transition-colors"
+                    >
                       <p className="text-[10px] text-white/40 uppercase font-bold tracking-widest mb-1">Regras de Uso</p>
                       <ul className="text-xs space-y-2 text-white/80">
                         <li className="flex items-center gap-2">
@@ -454,7 +501,7 @@ export default function App() {
                           Confirmação automática
                         </li>
                       </ul>
-                    </div>
+                    </motion.div>
                   </div>
                 </div>
 
@@ -540,12 +587,14 @@ export default function App() {
                               </span>
                             </td>
                             <td className="px-8 py-6 text-right">
-                              <button 
+                              <motion.button 
+                                whileHover={{ scale: 1.1, backgroundColor: "rgba(239,68,68,0.1)" }}
+                                whileTap={{ scale: 0.9 }}
                                 onClick={() => setBookings(bookings.filter(b => b.id !== booking.id))}
-                                className="text-xs font-bold text-red-500 hover:text-red-700 transition-colors uppercase tracking-widest"
+                                className="text-xs font-bold text-red-500 hover:text-red-700 transition-colors uppercase tracking-widest p-2 rounded-xl"
                               >
                                 Cancelar
-                              </button>
+                              </motion.button>
                             </td>
                           </tr>
                         );
@@ -845,12 +894,14 @@ function CreateResourceModal({ isOpen, onClose, onCreate }: { isOpen: boolean; o
                   />
                 </div>
 
-                <button 
+                <motion.button 
+                  whileHover={{ scale: 1.02, backgroundColor: "rgba(0,0,0,0.95)" }}
+                  whileTap={{ scale: 0.98 }}
                   type="submit"
-                  className="w-full py-4 bg-black text-white rounded-2xl font-bold hover:bg-black/90 transition-all shadow-lg shadow-black/10 mt-4"
+                  className="w-full py-4 bg-black text-white rounded-2xl font-bold transition-all shadow-lg shadow-black/10 mt-4"
                 >
                   Criar Recurso
-                </button>
+                </motion.button>
               </form>
             </div>
           </motion.div>
@@ -900,8 +951,11 @@ function ResourceCard({ resource, bookings, onClick }: { resource: Resource; boo
 
   return (
     <motion.div 
-      whileHover={{ y: -4 }}
-      className="bg-white rounded-3xl overflow-hidden border border-black/5 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+      whileHover={{ y: -8, shadow: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)" }}
+      whileTap={{ scale: 0.98 }}
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="bg-white rounded-[32px] overflow-hidden border border-black/5 shadow-sm transition-all cursor-pointer group"
       onClick={onClick}
     >
       <div className="relative h-48 overflow-hidden">
