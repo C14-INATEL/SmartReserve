@@ -27,7 +27,11 @@ const RecursoSchema = new mongoose.Schema({
       type: String,
       required: true
     }
-  }]
+  }],
+  imageUrl: {
+    type: String,
+    default: ""
+  }
 }, {
   timestamps: true
 });

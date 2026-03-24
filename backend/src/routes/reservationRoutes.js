@@ -3,6 +3,27 @@ import Reserva from "../models/Reserva.js";
 
 const router = express.Router();
 
+// GET /reservations?usuario=<ObjectId>
+router.get("/reservations", async (req, res) => {
+  try {
+    const { usuario } = req.query;
+    if (!usuario) {
+      return res.status(400).json({ message: "Parâmetro usuario é obrigatório" });
+    }
+
+    const lista = await Reserva.find({ usuario })
+      .populate("recurso")
+      .sort({ data: -1, horaInicio: -1 });
+
+    return res.status(200).json(lista);
+  } catch (error) {
+    return res.status(500).json({
+      message: "Erro ao buscar reservas",
+      error: error.message
+    });
+  }
+});
+
 /** Converte "9:00", "09:00", "14:30" em minutos desde meia-noite */
 function horaParaMinutos(hora) {
   const str = String(hora).trim();
@@ -98,6 +119,22 @@ router.post("/reservations", async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       message: "Erro ao criar reserva",
+      error: error.message
+    });
+  }
+});
+
+// DELETE /reservations/:id
+router.delete("/reservations/:id", async (req, res) => {
+  try {
+    const removida = await Reserva.findByIdAndDelete(req.params.id);
+    if (!removida) {
+      return res.status(404).json({ message: "Reserva não encontrada" });
+    }
+    return res.status(200).json({ message: "Reserva removida" });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Erro ao remover reserva",
       error: error.message
     });
   }

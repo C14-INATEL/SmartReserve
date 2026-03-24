@@ -35,36 +35,92 @@ import { format, addDays, startOfToday, isSameDay, isWithinInterval, parse, setH
 import { ptBR } from 'date-fns/locale';
 import { cn } from './lib/utils';
 import { Resource, Booking, User, View, ResourceType } from './types';
-import { MOCK_RESOURCES, MOCK_BOOKINGS } from './mockData';
+import {
+  apiLogin,
+  apiFetchResources,
+  apiFetchReservations,
+  apiCreateReservation,
+  apiDeleteReservation,
+  apiCreateResource
+} from './lib/api';
+
+const SESSION_KEY = 'smartreserve_user';
 
 export default function App() {
   const [view, setView] = useState<View>('home');
   const [user, setUser] = useState<User | null>(null);
-  const [resources, setResources] = useState<Resource[]>(MOCK_RESOURCES);
-  const [bookings, setBookings] = useState<Booking[]>(MOCK_BOOKINGS);
+  const [resources, setResources] = useState<Resource[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
   const [filterType, setFilterType] = useState<ResourceType | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [matricula, setMatricula] = useState('');
+  const [senha, setSenha] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [appError, setAppError] = useState('');
 
-  // Auth Mock
-  const handleLogin = (e: React.FormEvent) => {
+  const loadAppData = async (userId: string) => {
+    setAppError('');
+    try {
+      const [resList, bookList] = await Promise.all([
+        apiFetchResources(),
+        apiFetchReservations(userId)
+      ]);
+      setResources(resList);
+      setBookings(bookList);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Erro ao carregar dados';
+      setAppError(msg);
+    }
+  };
+
+  React.useEffect(() => {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    if (!raw) return;
+    try {
+      const u = JSON.parse(raw) as User;
+      setUser(u);
+      void loadAppData(u.id);
+    } catch {
+      sessionStorage.removeItem(SESSION_KEY);
+    }
+  }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setUser({ 
-      id: 'u1', 
-      name: 'Usuário Demo', 
-      email: 'demo@exemplo.com',
-      photoUrl: 'https://picsum.photos/seed/user1/200/200',
-      role: 'admin'
-    });
-    setView('home');
+    setLoginError('');
+    setLoginLoading(true);
+    try {
+      const apiUser = await apiLogin(matricula, senha);
+      const u: User = {
+        id: apiUser.id,
+        name: apiUser.nome,
+        matricula: apiUser.matricula,
+        role: apiUser.role === 'admin' ? 'admin' : 'user',
+        photoUrl: `https://picsum.photos/seed/m${apiUser.matricula}/200/200`
+      };
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify(u));
+      setUser(u);
+      await loadAppData(u.id);
+      setView('home');
+      setSenha('');
+    } catch (err) {
+      setLoginError(err instanceof Error ? err.message : 'Não foi possível entrar.');
+    } finally {
+      setLoginLoading(false);
+    }
   };
 
   const handleLogout = () => {
+    sessionStorage.removeItem(SESSION_KEY);
     setUser(null);
-    setView('login');
+    setResources([]);
+    setBookings([]);
+    setView('home');
   };
 
   // Filtered Resources
@@ -77,20 +133,18 @@ export default function App() {
     });
   }, [resources, filterType, searchQuery]);
 
-  // Booking Logic
-  const handleBook = (resourceId: string, startTime: Date, duration: number) => {
+  const handleBook = async (resourceId: string, startTime: Date, duration: number) => {
+    if (!user) return;
     const endTime = addHours(startTime, duration);
-    
-    // Check for conflicts
-    const conflict = bookings.find(b => 
-      b.resourceId === resourceId && 
-      b.status === 'confirmed' &&
-      (
-        (isAfter(startTime, b.startTime) && isBefore(startTime, b.endTime)) ||
-        (isAfter(endTime, b.startTime) && isBefore(endTime, b.endTime)) ||
-        (isBefore(startTime, b.startTime) && isAfter(endTime, b.endTime)) ||
-        (startTime.getTime() === b.startTime.getTime())
-      )
+
+    const conflict = bookings.find(
+      (b) =>
+        b.resourceId === resourceId &&
+        b.status === 'confirmed' &&
+        ((isAfter(startTime, b.startTime) && isBefore(startTime, b.endTime)) ||
+          (isAfter(endTime, b.startTime) && isBefore(endTime, b.endTime)) ||
+          (isBefore(startTime, b.startTime) && isAfter(endTime, b.endTime)) ||
+          startTime.getTime() === b.startTime.getTime())
     );
 
     if (conflict) {
@@ -98,25 +152,40 @@ export default function App() {
       return;
     }
 
-    const newBooking: Booking = {
-      id: `b${Date.now()}`,
-      resourceId,
-      userId: user?.id || 'u1',
-      startTime,
-      endTime,
-      status: 'confirmed'
-    };
-
-    setBookings([...bookings, newBooking]);
-    alert('Reserva realizada com sucesso!');
+    try {
+      await apiCreateReservation({
+        usuario: user.id,
+        recurso: resourceId,
+        data: startTime.toISOString(),
+        horaInicio: format(startTime, 'HH:mm'),
+        horaFim: format(endTime, 'HH:mm')
+      });
+      const bookList = await apiFetchReservations(user.id);
+      setBookings(bookList);
+      alert('Reserva realizada com sucesso!');
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Erro ao reservar');
+    }
   };
 
-  const handleCreateResource = (newResource: Resource) => {
-    setResources([...resources, newResource]);
-    setIsCreateModalOpen(false);
+  const handleCreateResource = async (newResource: Resource) => {
+    try {
+      const created = await apiCreateResource({
+        name: newResource.name,
+        description: newResource.description,
+        type: newResource.type,
+        imageUrl: newResource.imageUrl,
+        horaInicio: newResource.availableHours.start,
+        horaFim: newResource.availableHours.end
+      });
+      setResources((prev) => [...prev, created]);
+      setIsCreateModalOpen(false);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Erro ao criar recurso');
+    }
   };
 
-  if (!user && view !== 'register') {
+  if (!user) {
     return (
       <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-4 font-sans relative overflow-hidden">
         {/* Background Atmosphere */}
@@ -142,6 +211,11 @@ export default function App() {
           </motion.div>
 
           <form onSubmit={handleLogin} className="w-full space-y-6">
+            {loginError && (
+              <p className="text-center text-sm text-red-400 bg-red-500/10 border border-red-500/30 rounded-2xl py-3 px-4">
+                {loginError}
+              </p>
+            )}
             <motion.div
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
@@ -149,14 +223,18 @@ export default function App() {
               className="relative"
             >
               <UserIcon className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
-              <input 
-                type="email" 
-                required 
-                placeholder="USERNAME"
+              <input
+                type="text"
+                inputMode="numeric"
+                autoComplete="username"
+                required
+                value={matricula}
+                onChange={(e) => setMatricula(e.target.value)}
+                placeholder="MATRÍCULA"
                 className="w-full pl-14 pr-6 py-4 rounded-full bg-white/5 border border-white/10 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/50 transition-all text-xs font-bold tracking-[0.2em] backdrop-blur-sm"
               />
             </motion.div>
-            
+
             <motion.div
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
@@ -164,30 +242,30 @@ export default function App() {
               className="relative"
             >
               <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
-              <input 
-                type="password" 
-                required 
-                placeholder="PASSWORD"
+              <input
+                type="password"
+                autoComplete="current-password"
+                required
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                placeholder="SENHA"
                 className="w-full pl-14 pr-6 py-4 rounded-full bg-white/5 border border-white/10 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/50 transition-all text-xs font-bold tracking-[0.2em] backdrop-blur-sm"
               />
             </motion.div>
 
-            <motion.button 
+            <motion.button
               type="submit"
-              whileHover={{ scale: 1.02, backgroundColor: "#ffffff", color: "#0f172a" }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full bg-white/10 backdrop-blur-md border border-white/20 text-white py-4 rounded-full font-bold text-xs tracking-[0.3em] shadow-2xl transition-all mt-8 uppercase hover:shadow-blue-500/20"
+              disabled={loginLoading}
+              whileHover={{ scale: loginLoading ? 1 : 1.02, backgroundColor: '#ffffff', color: '#0f172a' }}
+              whileTap={{ scale: loginLoading ? 1 : 0.98 }}
+              className="w-full bg-white/10 backdrop-blur-md border border-white/20 text-white py-4 rounded-full font-bold text-xs tracking-[0.3em] shadow-2xl transition-all mt-8 uppercase hover:shadow-blue-500/20 disabled:opacity-50 disabled:pointer-events-none"
             >
-              Login
+              {loginLoading ? 'Entrando…' : 'Entrar'}
             </motion.button>
 
-            <div className="flex items-center justify-between px-4 pt-4">
-              <label className="flex items-center gap-2 cursor-pointer group">
-                <input type="checkbox" className="w-4 h-4 rounded border-white/10 bg-white/5 text-blue-500 focus:ring-blue-500/40" />
-                <span className="text-[10px] font-bold text-white/30 group-hover:text-white/50 transition-colors tracking-widest uppercase">Remember me</span>
-              </label>
-              <button type="button" className="text-[10px] font-bold text-white/30 hover:text-white transition-colors tracking-widest uppercase">Forgot password?</button>
-            </div>
+            <p className="text-center text-[10px] text-white/40 tracking-wide px-4">
+              Acesso com matrícula e senha cadastrados pela instituição.
+            </p>
           </form>
 
           <div className="mt-20 flex justify-center gap-3">
@@ -590,7 +668,14 @@ export default function App() {
                               <motion.button 
                                 whileHover={{ scale: 1.1, backgroundColor: "rgba(239,68,68,0.1)" }}
                                 whileTap={{ scale: 0.9 }}
-                                onClick={() => setBookings(bookings.filter(b => b.id !== booking.id))}
+                                onClick={async () => {
+                                  try {
+                                    await apiDeleteReservation(booking.id);
+                                    if (user) setBookings(await apiFetchReservations(user.id));
+                                  } catch (err) {
+                                    alert(err instanceof Error ? err.message : 'Erro ao cancelar');
+                                  }
+                                }}
                                 className="text-xs font-bold text-red-500 hover:text-red-700 transition-colors uppercase tracking-widest p-2 rounded-xl"
                               >
                                 Cancelar
@@ -670,11 +755,11 @@ export default function App() {
                         </div>
                       </div>
                       <div>
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-muted mb-1.5 block">E-mail</label>
-                        <input 
-                          type="email" 
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-muted mb-1.5 block">Matrícula</label>
+                        <input
+                          type="text"
                           disabled
-                          value={user?.email}
+                          value={user?.matricula ?? ''}
                           className="w-full px-4 py-3 rounded-xl bg-[#f9f9f9] border border-black/5 opacity-50 cursor-not-allowed"
                         />
                       </div>

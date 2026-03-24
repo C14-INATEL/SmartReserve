@@ -5,14 +5,20 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  email: {
+  matricula: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    trim: true
   },
   senha: {
     type: String,
     required: true
+  },
+  role: {
+    type: String,
+    enum: ["admin", "user"],
+    default: "user"
   }
 }, {
   timestamps: true
