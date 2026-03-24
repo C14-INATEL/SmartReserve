@@ -150,6 +150,3 @@ Projeto acadêmico — **SmartReserve** (C14-INATEL). Consulte o repositório no
 
 ---
 
-## Licença
-
-Uso educacional, conforme orientação da instituição.
