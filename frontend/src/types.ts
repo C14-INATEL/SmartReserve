@@ -3,7 +3,7 @@ export type ResourceType = 'room' | 'lab' | 'equipment';
 export interface User {
   id: string;
   name: string;
-  email: string;
+  matricula: string;
   photoUrl?: string;
   role: 'admin' | 'user';
 }
@@ -14,8 +14,8 @@ export interface Resource {
   description: string;
   type: ResourceType;
   availableHours: {
-    start: string; // e.g., "08:00"
-    end: string;   // e.g., "22:00"
+    start: string;
+    end: string;
   };
   imageUrl: string;
   location?: string;
@@ -31,4 +31,4 @@ export interface Booking {
   status: 'confirmed' | 'pending' | 'cancelled';
 }
 
-export type View = 'home' | 'my-bookings' | 'resource-details' | 'login' | 'register' | 'settings';
+export type View = 'home' | 'my-bookings' | 'resource-details' | 'login' | 'settings';
