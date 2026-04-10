@@ -189,4 +189,69 @@ describe("Testes unitários criativos e relevantes", () => {
       imageUrl: ""
     });
   });
+
+  test("deve retornar erro ao não enviar campos obrigatórios na reserva", async () => {
+    const app = createApp();
+
+    const response = await request(app)
+      .post("/reservations")
+      .send({});
+
+    expect(response.status).toBe(400);
+  });
+
+  test("deve retornar erro quando horaInicio é maior que horaFim", async () => {
+    const app = createApp();
+
+    const response = await request(app)
+      .post("/reservations")
+      .send({
+        usuario: "u1",
+        recurso: "rec1",
+        data: "2026-03-27",
+        horaInicio: "12:00",
+        horaFim: "10:00"
+      });
+
+    expect(response.status).toBe(400);
+  });
+
+  test("deve impedir reserva com conflito de horário", async () => {
+    const app = createApp();
+
+    mockReserva.find.mockResolvedValue([
+      {
+        horaInicio: "10:00",
+        horaFim: "11:00"
+      }
+    ]);
+
+    const response = await request(app)
+      .post("/reservations")
+      .send({
+        usuario: "u1",
+        recurso: "rec1",
+        data: "2026-03-27",
+        horaInicio: "10:30",
+        horaFim: "11:30"
+      });
+
+    expect(response.status).toBe(400);
+  });
+
+  test("deve retornar erro para formato de hora inválido", async () => {
+    const app = createApp();
+
+    const response = await request(app)
+      .post("/reservations")
+      .send({
+        usuario: "u1",
+        recurso: "rec1",
+        data: "2026-03-27",
+        horaInicio: "99:99",
+        horaFim: "10:00"
+      });
+
+    expect(response.status).toBe(400);
+  });
 });
