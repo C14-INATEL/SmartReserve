@@ -1,5 +1,11 @@
 import express from "express";
 import Reserva from "../models/Reserva.js";
+import {
+  horaParaMinutos,
+  minutosParaHora,
+  intervalosSobrepoem,
+  inicioEFimDoDia
+} from "../utils/reservationTime.js";
 
 const router = express.Router();
 
@@ -23,36 +29,6 @@ router.get("/reservations", async (req, res) => {
     });
   }
 });
-
-/** Converte "9:00", "09:00", "14:30" em minutos desde meia-noite */
-function horaParaMinutos(hora) {
-  const str = String(hora).trim();
-  const match = str.match(/^(\d{1,2}):(\d{2})$/);
-  if (!match) return NaN;
-  const h = parseInt(match[1], 10);
-  const m = parseInt(match[2], 10);
-  if (h < 0 || h > 23 || m < 0 || m > 59) return NaN;
-  return h * 60 + m;
-}
-
-function minutosParaHora(min) {
-  const h = Math.floor(min / 60);
-  const m = min % 60;
-  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-}
-
-function intervalosSobrepoem(aInicio, aFim, bInicio, bFim) {
-  return aInicio < bFim && aFim > bInicio;
-}
-
-/** Início e fim do dia civil da data informada (para comparar reservas no mesmo dia) */
-function inicioEFimDoDia(data) {
-  const d = new Date(data);
-  if (Number.isNaN(d.getTime())) return null;
-  const start = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
-  const end = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
-  return { start, end };
-}
 
 // POST /reservations
 router.post("/reservations", async (req, res) => {
