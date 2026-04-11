@@ -5,7 +5,7 @@ const router = express.Router();
 
 const DIAS_PADRAO = ["segunda", "terca", "quarta", "quinta", "sexta"];
 
-function montarHorarios(body) {
+export function montarHorarios(body) {
   if (body.horariosDisponiveis?.length) {
     return body.horariosDisponiveis;
   }
