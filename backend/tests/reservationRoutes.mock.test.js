@@ -28,6 +28,7 @@ describe("Mock routes - reservas", () => {
     jest.clearAllMocks();
   });
 
+  // Teste 1 - Erro no banco de dados -> Retorna 500
   test("deve retornar erro 500 quando o banco falhar", async () => {
     const app = createApp();
 
@@ -47,6 +48,7 @@ describe("Mock routes - reservas", () => {
     expect(response.status).toBe(500);
   });
 
+  // Teste 2 - Sucesso no banco -> Chama a função create
   test("deve chamar o create corretamente ao criar reserva", async () => {
     const app = createApp();
 
