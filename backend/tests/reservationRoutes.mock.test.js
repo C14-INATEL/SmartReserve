@@ -72,4 +72,42 @@ describe("Mock routes - reservas", () => {
     expect(mockReserva.create).toHaveBeenCalled();
   });
 
+  //Teste de Conflito de Horário
+  test("deve retornar 400 se o horário solicitado já estiver ocupado", async () => {
+    const app = createApp();
+
+    // Mock: simula uma reserva já existente no banco para o mesmo recurso/data
+    mockReserva.find.mockResolvedValue([{
+      horaInicio: "10:00",
+      horaFim: "11:00"
+    }]);
+
+    const response = await request(app)
+      .post("/reservations")
+      .send({
+        usuario: "660c6d2a8b9e5a001a123456",
+        recurso: "660c6d2a8b9e5a001a654321",
+        data: "2026-04-27",
+        horaInicio: "10:30",
+        horaFim: "11:30"
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Horário já está reservado para esse recurso");
+  });
+
+  //Teste de Campos Obrigatórios (Bad Request)
+  test("deve retornar 400 se algum campo obrigatório estiver faltando", async () => {
+    const app = createApp();
+
+    // Enviando apenas o usuário (campos como data, recurso, etc. faltam)
+    const response = await request(app)
+      .post("/reservations")
+      .send({
+        usuario: "660c6d2a8b9e5a001a123456"
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Todos os campos são obrigatórios");
+  });
 });
