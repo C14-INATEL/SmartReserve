@@ -5,15 +5,17 @@ import { jest, describe, test, expect, beforeEach } from "@jest/globals"; // fra
 // mock do banco de dados
 const mockReserva = {
   find: jest.fn(),
-  create: jest.fn()
+  create: jest.fn(),
+  findByIdAndDelete: jest.fn(),
 };
 
 jest.unstable_mockModule("../src/models/Reserva.js", () => ({
-  default: mockReserva
+  default: mockReserva,
 }));
 
 // importa depois do mock
-const { default: reservationRoutes } = await import("../src/routes/reservationRoutes.js");
+const { default: reservationRoutes } =
+  await import("../src/routes/reservationRoutes.js");
 
 function createApp() {
   const app = express();
@@ -23,7 +25,6 @@ function createApp() {
 }
 
 describe("Mock routes - reservas", () => {
-
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -35,15 +36,13 @@ describe("Mock routes - reservas", () => {
     mockReserva.find.mockResolvedValue([]);
     mockReserva.create.mockRejectedValue(new Error("Erro no banco"));
 
-    const response = await request(app)
-      .post("/reservations")
-      .send({
-        usuario: "u1",
-        recurso: "rec1",
-        data: "2026-03-27",
-        horaInicio: "10:00",
-        horaFim: "11:00"
-      });
+    const response = await request(app).post("/reservations").send({
+      usuario: "u1",
+      recurso: "rec1",
+      data: "2026-03-27",
+      horaInicio: "10:00",
+      horaFim: "11:00",
+    });
 
     expect(response.status).toBe(500);
   });
@@ -56,22 +55,21 @@ describe("Mock routes - reservas", () => {
 
     mockReserva.create.mockResolvedValue({
       usuario: "u1",
-      recurso: "rec1"
+      recurso: "rec1",
     });
 
-    await request(app)
-      .post("/reservations")
-      .send({
-        usuario: "u1",
-        recurso: "rec1",
-        data: "2026-03-27",
-        horaInicio: "10:00",
-        horaFim: "11:00"
-      });
+    await request(app).post("/reservations").send({
+      usuario: "u1",
+      recurso: "rec1",
+      data: "2026-03-27",
+      horaInicio: "10:00",
+      horaFim: "11:00",
+    });
 
     expect(mockReserva.create).toHaveBeenCalled();
   });
 
+<<<<<<< HEAD
   //Teste de Conflito de Horário
   test("deve retornar 400 se o horário solicitado já estiver ocupado", async () => {
     const app = createApp();
@@ -111,3 +109,40 @@ describe("Mock routes - reservas", () => {
     expect(response.body.message).toBe("Todos os campos são obrigatórios");
   });
 });
+=======
+  // Teste 3 - GET com usuario -> Retorna lista mockada
+  test("deve retornar lista de reservas para um usuario", async () => {
+    const app = createApp();
+
+    const reservasFake = [
+      { usuario: "u1", recurso: { nome: "Sala A" }, data: "2026-03-27", horaInicio: "10:00", horaFim: "11:00" }
+    ];
+
+    // find() retorna um objeto encadeável (Query do Mongoose retorna .populate().sort())
+    const mockQuery = {
+      populate: jest.fn().mockReturnThis(),
+      sort: jest.fn().mockResolvedValue(reservasFake)
+    };
+    mockReserva.find.mockReturnValue(mockQuery);
+
+    const response = await request(app).get("/reservations?usuario=u1");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveLength(1);
+    expect(mockReserva.find).toHaveBeenCalledWith({ usuario: "u1" });
+    expect(mockQuery.populate).toHaveBeenCalledWith("recurso");
+  });
+
+  // Teste 4 - DELETE reserva não encontrada -> Retorna 404
+  test("deve retornar 404 ao deletar reserva inexistente", async () => {
+    const app = createApp();
+
+    mockReserva.findByIdAndDelete.mockResolvedValue(null);
+
+    const response = await request(app).delete("/reservations/id-inexistente");
+
+    expect(response.status).toBe(404);
+    expect(response.body.message).toBe("Reserva não encontrada");
+  });
+});
+>>>>>>> b453615 (Feat:criação de dois mocks)
