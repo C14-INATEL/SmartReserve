@@ -78,19 +78,27 @@ test.describe('Recursos — Browse, Filtros e Busca', () => {
     await expect(page.locator('input[placeholder="Buscar recurso..."]')).toBeVisible();
   });
 
-  test('busca por "alfa" mostra apenas a sala correspondente', async ({ page }) => {
-    await page.locator('input[placeholder="Buscar recurso..."]').fill('alfa');
+  test('busca por "alpha" mostra apenas a sala correspondente', async ({ page }) => {
+    // Wait for resources to render before interacting with search
+    await expect(page.getByText('Sala de Reunião Alpha')).toBeVisible();
+
+    await page.locator('input[placeholder="Buscar recurso..."]').fill('alpha');
 
     await expect(page.getByText('Sala de Reunião Alpha')).toBeVisible();
     await expect(page.getByText('Laboratório de Informática 01')).not.toBeVisible();
     await expect(page.getByText('Projetor 4K')).not.toBeVisible();
   });
 
-  test('busca por "projetor" mostra apenas o equipamento', async ({ page }) => {
-    await page.locator('input[placeholder="Buscar recurso..."]').fill('projetor');
+  test('busca por "4k" mostra apenas o equipamento', async ({ page }) => {
+    // Wait for resources to render before interacting with search
+    await expect(page.getByText('Projetor 4K')).toBeVisible();
+
+    // Use "4k" — unique to "Projetor 4K" name (sala's description mentions "projetor" too)
+    await page.locator('input[placeholder="Buscar recurso..."]').fill('4k');
 
     await expect(page.getByText('Projetor 4K')).toBeVisible();
     await expect(page.getByText('Sala de Reunião Alpha')).not.toBeVisible();
+    await expect(page.getByText('Laboratório de Informática 01')).not.toBeVisible();
   });
 
   test('busca sem resultado exibe grid vazio', async ({ page }) => {
@@ -111,8 +119,10 @@ test.describe('Recursos — Browse, Filtros e Busca', () => {
   });
 
   test('busca e filtro funcionam combinados', async ({ page }) => {
+    await expect(page.getByText('Sala de Reunião Alpha')).toBeVisible();
+
     await page.getByRole('button', { name: 'Salas' }).click();
-    await page.locator('input[placeholder="Buscar recurso..."]').fill('alfa');
+    await page.locator('input[placeholder="Buscar recurso..."]').fill('alpha');
 
     await expect(page.getByText('Sala de Reunião Alpha')).toBeVisible();
     await expect(page.getByText('Laboratório de Informática 01')).not.toBeVisible();

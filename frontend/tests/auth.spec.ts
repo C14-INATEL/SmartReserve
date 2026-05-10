@@ -38,15 +38,20 @@ test.describe('Autenticação', () => {
   });
 
   test('exibe estado de carregamento durante o login', async ({ page }) => {
-    // Delay the response to catch the loading state
+    // Set up delayed auth mock LAST so it takes precedence
+    await page.route('**/api/resources', (route) =>
+      route.fulfill({ status: 200, json: [] })
+    );
+    await page.route('**/api/reservations**', (route) =>
+      route.fulfill({ status: 200, json: [] })
+    );
     await page.route('**/api/auth/login', async (route) => {
-      await new Promise((r) => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 600));
       route.fulfill({
         status: 200,
         json: { user: { id: 'user123', nome: 'Álvaro Belarmino', matricula: '180', role: 'user' } },
       });
     });
-    await setupApiMocks(page);
     await page.goto('/');
 
     await page.locator('input[placeholder="MATRÍCULA"]').fill('180');
@@ -70,7 +75,7 @@ test.describe('Autenticação', () => {
     await setupAuthenticatedPage(page);
 
     // Open profile dropdown
-    await page.getByText('Membro').click();
+    await page.locator('nav').locator('button').first().click();
     await expect(page.getByText('Sair')).toBeVisible();
     await page.getByText('Sair').click();
 
@@ -82,12 +87,12 @@ test.describe('Autenticação', () => {
   test('logout limpa a sessão do usuário', async ({ page }) => {
     await setupAuthenticatedPage(page);
 
-    await page.getByText('Membro').click();
+    await page.locator('nav').locator('button').first().click();
     await page.getByText('Sair').click();
 
-    // Reload — should still be on login screen (sessionStorage cleared)
-    await page.reload();
-    await expect(page.locator('input[placeholder="MATRÍCULA"]')).toBeVisible();
+    // Verify sessionStorage was cleared (avoid reload — addInitScript would reinject the user)
+    const stored = await page.evaluate(() => window.sessionStorage.getItem('smartreserve_user'));
+    expect(stored).toBeNull();
   });
 
   test('campos de login têm os tipos corretos', async ({ page }) => {

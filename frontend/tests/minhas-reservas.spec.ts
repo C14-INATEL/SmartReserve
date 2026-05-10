@@ -4,7 +4,7 @@ import { setupAuthenticatedPage, mockBookingsApi, mockResourcesApi } from './fix
 test.describe('Minhas Reservas — Visualização e Cancelamento', () => {
   async function openMyBookings(page: import('@playwright/test').Page) {
     // Open profile dropdown and navigate to my bookings
-    await page.getByText('Membro').click();
+    await page.locator('nav').locator('button').first().click();
     await expect(page.getByText('Minhas Reservas')).toBeVisible();
     await page.getByText('Minhas Reservas').click();
     await expect(page.getByRole('heading', { name: 'Minhas Reservas' })).toBeVisible();
@@ -21,11 +21,12 @@ test.describe('Minhas Reservas — Visualização e Cancelamento', () => {
     });
 
     test('exibe tabela com todas as colunas esperadas', async ({ page }) => {
-      await expect(page.getByText('Recurso')).toBeVisible();
-      await expect(page.getByText('Data')).toBeVisible();
-      await expect(page.getByText('Horário')).toBeVisible();
-      await expect(page.getByText('Status')).toBeVisible();
-      await expect(page.getByText('Ações')).toBeVisible();
+      // Use getByRole('columnheader') to avoid strict mode violations from partial text matches
+      await expect(page.getByRole('columnheader', { name: 'Recurso' })).toBeVisible();
+      await expect(page.getByRole('columnheader', { name: 'Data' })).toBeVisible();
+      await expect(page.getByRole('columnheader', { name: 'Horário' })).toBeVisible();
+      await expect(page.getByRole('columnheader', { name: 'Status' })).toBeVisible();
+      await expect(page.getByRole('columnheader', { name: 'Ações' })).toBeVisible();
     });
 
     test('exibe o recurso da reserva na tabela', async ({ page }) => {
@@ -96,24 +97,23 @@ test.describe('Minhas Reservas — Visualização e Cancelamento', () => {
       await setupAuthenticatedPage(page);
 
       // Open dropdown
-      await page.getByText('Membro').click();
+      await page.locator('nav').locator('button').first().click();
       await expect(page.getByText('Minha Conta')).toBeVisible();
 
-      // Close by clicking elsewhere
-      await page.keyboard.press('Escape');
-      await page.click('body', { position: { x: 700, y: 400 } });
+      // Close by clicking the fixed overlay that covers the screen
+      await page.locator('.fixed.inset-0.z-40').click({ force: true });
       await expect(page.getByText('Minha Conta')).not.toBeVisible();
     });
 
     test('menu de perfil inclui link para Configurações', async ({ page }) => {
       await setupAuthenticatedPage(page);
-      await page.getByText('Membro').click();
+      await page.locator('nav').locator('button').first().click();
       await expect(page.getByText('Configurações')).toBeVisible();
     });
 
     test('navegar para Configurações via menu de perfil', async ({ page }) => {
       await setupAuthenticatedPage(page);
-      await page.getByText('Membro').click();
+      await page.locator('nav').locator('button').first().click();
       await page.getByText('Configurações').click();
 
       await expect(page.getByRole('heading', { name: 'Configurações' })).toBeVisible();

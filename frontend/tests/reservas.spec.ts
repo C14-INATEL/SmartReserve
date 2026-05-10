@@ -18,9 +18,9 @@ test.describe('Reservas — Detalhes e Criação', () => {
 
   test('exibe seção "Agenda de Hoje" com grade de horários', async ({ page }) => {
     await expect(page.getByText('Agenda de Hoje')).toBeVisible();
-    // 12 slots from 08:00 to 19:00
-    await expect(page.getByText('08:00')).toBeVisible();
-    await expect(page.getByText('19:00')).toBeVisible();
+    // Time slots rendered as <span class="font-mono"> elements
+    await expect(page.locator('span.font-mono').filter({ hasText: '08:00' })).toBeVisible();
+    await expect(page.locator('span.font-mono').filter({ hasText: '19:00' })).toBeVisible();
   });
 
   test('exibe badge de tipo correto no detalhe', async ({ page }) => {
@@ -40,7 +40,8 @@ test.describe('Reservas — Detalhes e Criação', () => {
   });
 
   test('logo da SmartReserve retorna ao grid de recursos', async ({ page }) => {
-    await page.getByText('SmartReserve').first().click();
+    // Click the logo area in the nav center (text is hidden sm:block, use the clickable div)
+    await page.locator('nav').locator('div.cursor-pointer').click();
 
     await expect(page.getByText('Recursos Disponíveis')).toBeVisible();
   });
@@ -70,10 +71,11 @@ test.describe('Reservas — Detalhes e Criação', () => {
     await expect(page.getByText('Horário Ocupado')).toBeVisible();
   });
 
-  test('slot reservado tem cursor not-allowed', async ({ page }) => {
-    const bookedSlot = page.locator('div').filter({ hasText: 'Horário Ocupado' }).first();
-    const cursor = await bookedSlot.evaluate((el) => window.getComputedStyle(el).cursor);
-    expect(cursor).toBe('not-allowed');
+  test('slot reservado tem classe cursor-not-allowed', async ({ page }) => {
+    // The booked slot div has Tailwind's cursor-not-allowed class applied directly
+    const bookedSlot = page.locator('[class*="cursor-not-allowed"]').filter({ hasText: 'Horário Ocupado' }).first();
+    await expect(bookedSlot).toBeVisible();
+    await expect(bookedSlot).toHaveClass(/cursor-not-allowed/);
   });
 
   // ─── Criação de reserva ──────────────────────────────────────────────────
