@@ -69,7 +69,6 @@ describe("Mock routes - reservas", () => {
     expect(mockReserva.create).toHaveBeenCalled();
   });
 
-<<<<<<< HEAD
   //Teste de Conflito de Horário
   test("deve retornar 400 se o horário solicitado já estiver ocupado", async () => {
     const app = createApp();
@@ -109,7 +108,6 @@ describe("Mock routes - reservas", () => {
     expect(response.body.message).toBe("Todos os campos são obrigatórios");
   });
 });
-=======
   // Teste 3 - GET com usuario -> Retorna lista mockada
   test("deve retornar lista de reservas para um usuario", async () => {
     const app = createApp();
@@ -144,5 +142,4 @@ describe("Mock routes - reservas", () => {
     expect(response.status).toBe(404);
     expect(response.body.message).toBe("Reserva não encontrada");
   });
-});
->>>>>>> b453615 (Feat:criação de dois mocks)
+;
