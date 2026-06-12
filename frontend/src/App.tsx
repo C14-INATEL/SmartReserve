@@ -43,6 +43,7 @@ import {
   apiDeleteReservation,
   apiCreateResource
 } from './lib/api';
+import { AlertDialog, ConfirmDialog } from './components/FeedbackDialogs';
 
 const SESSION_KEY = 'smartreserve_user';
 
@@ -62,6 +63,8 @@ export default function App() {
   const [loginError, setLoginError] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
   const [appError, setAppError] = useState('');
+  const [alertDialog, setAlertDialog] = useState<{ type: 'success' | 'error'; title?: string; message: string } | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
   const loadAppData = async (userId: string) => {
     setAppError('');
@@ -148,7 +151,7 @@ export default function App() {
     );
 
     if (conflict) {
-      alert('Este horário já está reservado. Por favor, escolha outro.');
+      setAlertDialog({ type: 'error', message: 'Este horário já está reservado. Por favor, escolha outro.' });
       return;
     }
 
@@ -162,9 +165,9 @@ export default function App() {
       });
       const bookList = await apiFetchReservations(user.id);
       setBookings(bookList);
-      alert('Reserva realizada com sucesso!');
+      setAlertDialog({ type: 'success', message: 'Reserva realizada com sucesso!' });
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Erro ao reservar');
+      setAlertDialog({ type: 'error', message: err instanceof Error ? err.message : 'Erro ao reservar' });
     }
   };
 
@@ -181,7 +184,7 @@ export default function App() {
       setResources((prev) => [...prev, created]);
       setIsCreateModalOpen(false);
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Erro ao criar recurso');
+      setAlertDialog({ type: 'error', message: err instanceof Error ? err.message : 'Erro ao criar recurso' });
     }
   };
 
@@ -665,16 +668,21 @@ export default function App() {
                               </span>
                             </td>
                             <td className="px-8 py-6 text-right">
-                              <motion.button 
+                              <motion.button
                                 whileHover={{ scale: 1.1, backgroundColor: "rgba(239,68,68,0.1)" }}
                                 whileTap={{ scale: 0.9 }}
-                                onClick={async () => {
-                                  try {
-                                    await apiDeleteReservation(booking.id);
-                                    if (user) setBookings(await apiFetchReservations(user.id));
-                                  } catch (err) {
-                                    alert(err instanceof Error ? err.message : 'Erro ao cancelar');
-                                  }
+                                onClick={() => {
+                                  setConfirmDialog({
+                                    message: 'Tem certeza que deseja cancelar esta reserva?',
+                                    onConfirm: async () => {
+                                      try {
+                                        await apiDeleteReservation(booking.id);
+                                        if (user) setBookings(await apiFetchReservations(user.id));
+                                      } catch (err) {
+                                        setAlertDialog({ type: 'error', message: err instanceof Error ? err.message : 'Erro ao cancelar' });
+                                      }
+                                    }
+                                  });
                                 }}
                                 className="text-xs font-bold text-red-500 hover:text-red-700 transition-colors uppercase tracking-widest p-2 rounded-xl"
                               >
@@ -815,10 +823,25 @@ export default function App() {
         </div>
       </footer>
 
-      <CreateResourceModal 
-        isOpen={isCreateModalOpen} 
-        onClose={() => setIsCreateModalOpen(false)} 
-        onCreate={handleCreateResource} 
+      <CreateResourceModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onCreate={handleCreateResource}
+      />
+
+      <AlertDialog
+        isOpen={!!alertDialog}
+        onClose={() => setAlertDialog(null)}
+        type={alertDialog?.type ?? 'error'}
+        title={alertDialog?.title}
+        message={alertDialog?.message ?? ''}
+      />
+
+      <ConfirmDialog
+        isOpen={!!confirmDialog}
+        onClose={() => setConfirmDialog(null)}
+        onConfirm={confirmDialog?.onConfirm ?? (() => {})}
+        message={confirmDialog?.message ?? ''}
       />
     </div>
   );
@@ -831,6 +854,7 @@ function CreateResourceModal({ isOpen, onClose, onCreate }: { isOpen: boolean; o
   const [startHour, setStartHour] = useState('08:00');
   const [endHour, setEndHour] = useState('18:00');
   const [imageUrl, setImageUrl] = useState('');
+  const [validationError, setValidationError] = useState('');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -845,8 +869,9 @@ function CreateResourceModal({ isOpen, onClose, onCreate }: { isOpen: boolean; o
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setValidationError('');
     if (!name || !description || !imageUrl) {
-      alert('Por favor, preencha todos os campos e selecione uma foto.');
+      setValidationError('Por favor, preencha todos os campos e selecione uma foto.');
       return;
     }
 
@@ -979,7 +1004,13 @@ function CreateResourceModal({ isOpen, onClose, onCreate }: { isOpen: boolean; o
                   />
                 </div>
 
-                <motion.button 
+                {validationError && (
+                  <p className="text-center text-sm text-red-400 bg-red-500/10 border border-red-500/30 rounded-2xl py-3 px-4">
+                    {validationError}
+                  </p>
+                )}
+
+                <motion.button
                   whileHover={{ scale: 1.02, backgroundColor: "rgba(0,0,0,0.95)" }}
                   whileTap={{ scale: 0.98 }}
                   type="submit"
