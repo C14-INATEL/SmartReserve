@@ -202,6 +202,42 @@ Resposta aceita: a IA explicou a utilização da asserção `.toThrow()` envolve
 Dinâmica de uso
 Utilizada em sessões pontuais durante o desenvolvimento da branch, servindo como suporte para validação de lógica de manipulação de datas, refatoração de funções utilitárias matemáticas e desenvolvimento de cenários de teste automatizados com Jest. Todas as sugestões de código foram adaptadas e validadas localmente pelo integrante antes do commit final.
 
+
+### Contribuições de Vitória (Branch: feature/testes)
+
+Para quê foi usada - Vitória:
+
+* Criação de testes unitários para validar o comportamento das funcionalidades implementadas
+* Definição de cenários de teste para casos de sucesso, falha e entradas inválidas
+* Análise de erros durante a execução dos testes automatizados
+* Revisão da diferença entre resultado esperado e resultado obtido nos testes
+* Organização dos testes para melhorar a confiabilidade da entrega do laboratório
+
+Exemplos reais de prompts
+
+Prompt 1
+
+Como posso estruturar testes unitários para validar se uma função está retornando corretamente o resultado esperado quando recebe uma entrada válida?
+
+Resposta aceita: a IA explicou como montar casos de teste com entradas conhecidas, executar a função testada e comparar o retorno obtido com o valor esperado por meio de asserções. A orientação ajudou a organizar os testes iniciais a partir dos fluxos principais da aplicação.
+
+Prompt 2
+
+Um dos testes automatizados está falhando, mas a lógica da função parece estar correta. Como posso identificar se o problema está no teste ou na implementação?
+
+Resposta aceita: a IA recomendou comparar o valor esperado com o valor realmente retornado pela função, revisar os dados usados como entrada e verificar se o teste estava coerente com a regra de negócio solicitada. Isso auxiliou na identificação de inconsistências entre a expectativa do teste e o comportamento implementado.
+
+Prompt 3
+
+Quais cenários devo considerar para testar uma funcionalidade além do fluxo principal, incluindo entradas inválidas e casos limite?
+
+Resposta aceita: a IA sugeriu a criação de testes separados para entradas válidas, entradas inválidas, campos vazios, valores fora do padrão esperado e casos limite. Essa orientação contribuiu para ampliar a cobertura dos testes e validar comportamentos que poderiam não ser percebidos apenas com testes de caminho feliz.
+
+Dinâmica de uso
+
+Utilizada em sessões pontuais durante o desenvolvimento dos testes do laboratório de C214, servindo como apoio para definição de cenários, interpretação de falhas e revisão da lógica esperada nas funcionalidades. As sugestões foram adaptadas conforme o código do projeto e validadas localmente antes da entrega final.
+
+
 ---
 
 ## Equipe
