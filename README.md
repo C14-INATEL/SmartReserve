@@ -205,28 +205,25 @@ Utilizada em sessões pontuais durante o desenvolvimento da branch, servindo com
 
 ### Contribuições de Fabio (Branch: feat/adicionar-animacoes-no-front / refactor/popups-feedback)
 
-Para quê foi usada - Fabio:
+Dinâmica de uso:
+Usei primeiro o Google AI Studio pra fazer o visual, porque achei que ele é mais afiado nisso. Depois mandei o código pro Claude Sonnet pra refatorar as funções e deixar mais limpo. A partir daí fui pedindo planos de implementação dos testes e executando conforme ia conferindo os resultados, pedindo ajustes pontuais quando algo não funcionava como esperado. Uma coisa que funcionou bem foi usar o plan-mode antes de qualquer coisa, e quando o prompt ficava muito genérico eu pedia pro próprio Claude melhorar ele antes de mandar o plano de verdade.
+
+Para quê foi usada:
 - Desenvolvimento completo do frontend (React, TypeScript, Tailwind CSS, animações com Motion)
 - Substituição dos pop-ups nativos do browser por modais customizados integrados ao design do sistema
 - Planejamento e implementação de testes de usabilidade com Playwright
 - Refinamento iterativo de prompts para geração de planos de implementação mais precisos
 
-Exemplos reais de prompts
-
 Prompt 1 — versão inicial (antes do refinamento)
 
 Os pop-ups estão muito feios, acho que são os nativos do browser. Use o mesmo esquema visual e faça os pop-ups de operações e confirmações.
-
 
 Prompt 2 — versão refinada (após pedir ao Claude para melhorar o prompt)
 
 Os pop-ups atuais estão usando os diálogos nativos do browser (alert, confirm). Substitua todos eles por modais customizados que sigam exatamente o mesmo esquema visual da aplicação (mesmas cores, fontes, bordas, sombras e espaçamentos já usados). Crie componentes reutilizáveis para dois tipos: Informação/Operação — substitui `alert()`, e Confirmação — substitui `confirm()` com botões "Confirmar" e "Cancelar". Os modais devem ter overlay escurecido ao fundo, animação suave de entrada, fechar ao clicar fora ou pressionar Esc, e ser totalmente responsivos.
 
-Resposta aceita: a IA gerou um plano detalhado de implementação identificando os 6 pontos de uso de `alert()` no `App.tsx`, propôs a criação do arquivo `frontend/src/components/FeedbackDialogs.tsx` com os componentes `AlertDialog` e `ConfirmDialog`, e descreveu as mudanças de estado necessárias no componente principal, incluindo os novos estados `alertDialog` e `confirmDialog` com seus respectivos tipos TypeScript.
-
-Dinâmica de uso
-Usei primeiro o Google AI Studio pra fazer o visual, porque achei que ele é mais afiado nisso. Depois mandei o código pro Claude Sonnet pra refatorar as funções e deixar mais limpo. A partir daí fui pedindo planos de implementação dos testes e executando conforme ia conferindo os resultados, pedindo ajustes pontuais quando algo não funcionava como esperado. Uma coisa que funcionou bem foi usar o plan-mode antes de qualquer coisa, e quando o prompt ficava muito genérico eu pedia pro próprio Claude melhorar ele antes de mandar o plano de verdade.
-
+Plano gerado: 
+a IA gerou um plano detalhado de implementação identificando os 6 pontos de uso de `alert()` no `App.tsx`, propôs a criação do arquivo `frontend/src/components/FeedbackDialogs.tsx` com os componentes `AlertDialog` e `ConfirmDialog`, e descreveu as mudanças de estado necessárias no componente principal, incluindo os novos estados `alertDialog` e `confirmDialog` com seus respectivos tipos TypeScript.
 
 
 
