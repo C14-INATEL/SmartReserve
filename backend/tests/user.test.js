@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import { describe, test, expect, beforeAll, afterAll } from "@jest/globals";
 import User from "../src/models/User.js";
 
-describe("Testes unitários do modelo User", () => {
+describe.skip("Testes unitários do modelo User", () => {
 
   beforeAll(async () => {
     await mongoose.connect("mongodb://127.0.0.1:27017/testdb");

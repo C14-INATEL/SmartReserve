@@ -4,6 +4,15 @@ Sistema web para **gerenciar reservas** de salas, laboratórios e equipamentos e
 
 ---
 
+## Funcionalidades e Uso do Sistema
+
+O *SmartReserve* oferece as seguintes capacidades:
+
+1. *Autenticação Segura*: Login utilizando número de matrícula e senha cadastrados no sistema.
+2. *Listagem e Visualização de Recursos*: Visualização de todas as salas, laboratórios e equipamentos disponíveis na instituição, com seus respectivos horários permitidos de funcionamento.
+3. *Criação de Reservas sem Conflito*: Cadastro de agendamentos contendo data e hora de início e fim. O sistema bloqueia automaticamente qualquer tentativa de reserva dupla no mesmo horário e recurso.
+4. *Cancelamento de Agendamentos*: Listagem histórica das reservas do usuário conectado com a opção de excluir agendamentos diretamente na interface.
+
 ## Visão geral
 
 | Camada | Tecnologia |
@@ -149,4 +158,7 @@ npm run preview   # testar o build localmente
 Projeto acadêmico — **SmartReserve** (C14-INATEL). Consulte o repositório no GitHub para a lista atual de integrantes e contribuições.
 
 ---
+
+
+
 
