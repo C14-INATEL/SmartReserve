@@ -7,7 +7,9 @@ import {
   horaParaMinutos,
   minutosParaHora,
   intervalosSobrepoem,
-  inicioEFimDoDia
+  inicioEFimDoDia,
+  validarFormatoHora,
+  horariosSaoValidos
 } from "../src/utils/reservationTime.js";
 
 describe("reservationTime — regras de negócio de reserva", () => {
@@ -50,4 +52,24 @@ describe("reservationTime — regras de negócio de reserva", () => {
     expect(minutosParaHora(m)).toBe("16:45");
     expect(horaParaMinutos(minutosParaHora(m))).toBe(m);
   });
+
+  test("validarFormatoHora aceita apenas strings válidas de 24h", () => {
+    expect(validarFormatoHora("08:00")).toBe(true);
+    expect(validarFormatoHora("9:30")).toBe(true);
+    expect(validarFormatoHora("23:59")).toBe(true);
+
+    expect(validarFormatoHora("24:00")).toBe(false);
+    expect(validarFormatoHora("12:60")).toBe(false);
+    expect(validarFormatoHora("abc")).toBe(false);
+    expect(validarFormatoHora("")).toBe(false);
+    expect(validarFormatoHora(null)).toBe(false);
+  });
+
+  test("horariosSaoValidos valida a consistência de tempos", () => {
+    expect(horariosSaoValidos("08:00", "12:00")).toBe(true);
+    expect(horariosSaoValidos("12:00", "08:00")).toBe(false);
+    expect(horariosSaoValidos("08:00", "08:00")).toBe(false);
+    expect(horariosSaoValidos("99:99", "12:00")).toBe(false);
+  });
 });
+

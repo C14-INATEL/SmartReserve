@@ -1,5 +1,6 @@
 import express from "express";
 import Recurso from "../models/Recurso.js";
+import { horariosSaoValidos } from "../utils/reservationTime.js";
 
 const router = express.Router();
 
@@ -7,10 +8,20 @@ const DIAS_PADRAO = ["segunda", "terca", "quarta", "quinta", "sexta"];
 
 export function montarHorarios(body) {
   if (body.horariosDisponiveis?.length) {
+    for (const h of body.horariosDisponiveis) {
+      if (!horariosSaoValidos(h.horaInicio, h.horaFim)) {
+        throw new Error(`Horário de início (${h.horaInicio}) deve ser menor que o de fim (${h.horaFim}) e formato deve ser HH:mm`);
+      }
+    }
     return body.horariosDisponiveis;
   }
   const hi = body.horaInicioGlobal || body.horaInicio || "08:00";
   const hf = body.horaFimGlobal || body.horaFim || "18:00";
+
+  if (!horariosSaoValidos(hi, hf)) {
+    throw new Error(`Horário de início (${hi}) deve ser menor que o de fim (${hf}) e no formato HH:mm`);
+  }
+
   return DIAS_PADRAO.map((diaSemana) => ({
     diaSemana,
     horaInicio: hi,
@@ -45,7 +56,12 @@ router.post("/resources", async (req, res) => {
       return res.status(400).json({ message: "Tipo inválido. Use: sala, laboratorio ou equipamento" });
     }
 
-    const horariosDisponiveis = montarHorarios(req.body);
+    let horariosDisponiveis;
+    try {
+      horariosDisponiveis = montarHorarios(req.body);
+    } catch (err) {
+      return res.status(400).json({ message: err.message });
+    }
 
     const recurso = await Recurso.create({
       nome,
@@ -54,6 +70,7 @@ router.post("/resources", async (req, res) => {
       horariosDisponiveis,
       imageUrl: imageUrl || ""
     });
+
 
     return res.status(201).json(recurso);
   } catch (error) {

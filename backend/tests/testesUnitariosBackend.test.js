@@ -33,4 +33,28 @@ describe("4 Testes Unitários Relevantes", () => {
     expect(resultado).toBeNull();
   });
 
+  // 5️⃣ Unidade: Lógica de erro para horários inconsistentes globais
+  test("deve lançar um erro quando horaInicioGlobal for maior ou igual a horaFimGlobal", () => {
+    const body = { horaInicioGlobal: "18:00", horaFimGlobal: "08:00" };
+    expect(() => montarHorarios(body)).toThrow("Horário de início (18:00) deve ser menor que o de fim (08:00)");
+  });
+
+  // 6️⃣ Unidade: Lógica de erro para formato global inválido
+  test("deve lançar um erro quando o formato dos horários globais for inválido", () => {
+    const body = { horaInicioGlobal: "invalido", horaFimGlobal: "12:00" };
+    expect(() => montarHorarios(body)).toThrow();
+  });
+
+  // 7️⃣ Unidade: Lógica de erro para horários customizados inconsistentes
+  test("deve lançar um erro quando um dos horários customizados na lista for inconsistente", () => {
+    const body = {
+      horariosDisponiveis: [
+        { diaSemana: "segunda", horaInicio: "08:00", horaFim: "12:00" },
+        { diaSemana: "terca", horaInicio: "15:00", horaFim: "13:00" } // Invalido
+      ]
+    };
+    expect(() => montarHorarios(body)).toThrow("Horário de início (15:00) deve ser menor que o de fim (13:00)");
+  });
+
 });
+
