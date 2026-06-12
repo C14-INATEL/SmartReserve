@@ -58,4 +58,4 @@ A pipeline garante que:
 
 A Figura 1 apresenta uma execução bem-sucedida da pipeline Jenkins.
 
-![Pipeline Jenkins](images/jenkins-pipeline-success.png)
+![Pipeline Jenkins](imagens/jenkins-pipeline-success.png)
