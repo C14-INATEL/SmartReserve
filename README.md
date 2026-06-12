@@ -203,77 +203,31 @@ Dinâmica de uso
 Utilizada em sessões pontuais durante o desenvolvimento da branch, servindo como suporte para validação de lógica de manipulação de datas, refatoração de funções utilitárias matemáticas e desenvolvimento de cenários de teste automatizados com Jest. Todas as sugestões de código foram adaptadas e validadas localmente pelo integrante antes do commit final.
 
 
-### Contribuições de Fabio : fiz o Front-end inteiro (Branch: feat/adicionar-animacoes-no-front / refactor/popups-feedback) alem de testes para usabilidade
+### Contribuições de Fabio (Branch: feat/adicionar-animacoes-no-front / refactor/popups-feedback)
+
+Para quê foi usada - Fabio:
+- Desenvolvimento completo do frontend (React, TypeScript, Tailwind CSS, animações com Motion)
+- Substituição dos pop-ups nativos do browser por modais customizados integrados ao design do sistema
+- Planejamento e implementação de testes de usabilidade com Playwright
+- Refinamento iterativo de prompts para geração de planos de implementação mais precisos
+
+Exemplos reais de prompts
+
+Prompt 1 — versão inicial (antes do refinamento)
+
+Os pop-ups estão muito feios, acho que são os nativos do browser. Use o mesmo esquema visual e faça os pop-ups de operações e confirmações.
+
+
+Prompt 2 — versão refinada (após pedir ao Claude para melhorar o prompt)
+
+Os pop-ups atuais estão usando os diálogos nativos do browser (alert, confirm). Substitua todos eles por modais customizados que sigam exatamente o mesmo esquema visual da aplicação (mesmas cores, fontes, bordas, sombras e espaçamentos já usados). Crie componentes reutilizáveis para dois tipos: Informação/Operação — substitui `alert()`, e Confirmação — substitui `confirm()` com botões "Confirmar" e "Cancelar". Os modais devem ter overlay escurecido ao fundo, animação suave de entrada, fechar ao clicar fora ou pressionar Esc, e ser totalmente responsivos.
+
+Resposta aceita: a IA gerou um plano detalhado de implementação identificando os 6 pontos de uso de `alert()` no `App.tsx`, propôs a criação do arquivo `frontend/src/components/FeedbackDialogs.tsx` com os componentes `AlertDialog` e `ConfirmDialog`, e descreveu as mudanças de estado necessárias no componente principal, incluindo os novos estados `alertDialog` e `confirmDialog` com seus respectivos tipos TypeScript.
 
 Dinâmica de uso
+Usei primeiro o Google AI Studio pra fazer o visual, porque achei que ele é mais afiado nisso. Depois mandei o código pro Claude Sonnet pra refatorar as funções e deixar mais limpo. A partir daí fui pedindo planos de implementação dos testes e executando conforme ia conferindo os resultados, pedindo ajustes pontuais quando algo não funcionava como esperado. Uma coisa que funcionou bem foi usar o plan-mode antes de qualquer coisa, e quando o prompt ficava muito genérico eu pedia pro próprio Claude melhorar ele antes de mandar o plano de verdade.
 
-usei primeiramente o google ai studio para fazer o visual pois ela é mais afiada nisso , depois mandei pro claude sonnet 4.7 para refatorar as funções , após isso fui pedindo planos de implementação de testes e implementando eles conforme eu conferia os resultados dos mesmos , conforme a necessidade fui pedindo alterações pontuais .
 
-usei primeiro o plan-mode em tudo , e alem disso mandava o promtp generico e pedia pro claude melhorar ele pra eu re enviar o plano 
-
-# o que eu mandei primeiro 
-
-os pop ups estão muito feios acho que sao os nativos do browser , use o mesmo esquema visual e faça os pop ups de operações e confirmações 
-
-# o prompt melhorado:
-
-Os pop-ups atuais estão usando os diálogos nativos do browser (alert, confirm, prompt). Substitua todos eles por modais customizados que sigam exatamente o mesmo esquema visual da aplicação (mesmas cores, fontes, bordas, sombras e espaçamentos já usados). Crie componentes reutilizáveis para os três tipos:
-
-    Informação/Operação – substitui alert()
-    Confirmação – substitui confirm() com botões "Confirmar" e "Cancelar"
-    Input – substitui prompt() com campo de texto e botões "OK" e "Cancelar"
-
-Os modais devem ter overlay escurecido ao fundo, animação suave de entrada, fechar ao clicar fora ou pressionar Esc, e ser totalmente responsivos.
-
-# o plano 
-
-# Substituir pop-ups nativos do navegador por modais customizados
-
-## Contexto
-O app (`frontend/src/App.tsx`) usa `alert()` nativo do navegador em 6 lugares para mensagens de sucesso/erro/validação, e o cancelamento de reserva (linha ~671-678) não tem nenhuma confirmação antes de excluir. Esses pop-ups nativos quebram visualmente o design do app (Tailwind + Framer Motion, cards arredondados `rounded-[32px]`, backdrop blur, etc., conforme `CreateResourceModal` em App.tsx:827-997). O objetivo é criar componentes de modal reutilizáveis que sigam o mesmo esquema visual, para:
-- Mensagens de sucesso/erro/validação (substituindo `alert()`)
-- Confirmação antes de ações destrutivas (cancelar reserva)
-
-## Usos de `alert()` a substituir (todos em `frontend/src/App.tsx`)
-- L151: erro de conflito de horário ao reservar
-- L165: sucesso ao reservar
-- L167: erro genérico ao reservar
-- L184: erro genérico ao criar recurso
-- L676: erro genérico ao cancelar reserva
-- L849: validação de formulário no `CreateResourceModal`
-
-## Novos componentes
-Criar `frontend/src/components/FeedbackDialogs.tsx` com dois componentes seguindo o padrão visual do `CreateResourceModal` (AnimatePresence, backdrop `bg-black/40 backdrop-blur-sm`, painel `bg-white rounded-[32px] shadow-2xl`, botões `motion.button` com `whileHover`/`whileTap`):
-
-1. **`AlertDialog`** — modal de notificação (sucesso/erro/validação) com um único botão "OK".
-   - Props: `{ isOpen, onClose, type: 'success' | 'error', title?, message }`
-   - Ícone via `lucide-react` (CheckCircle para success em verde/emerald, AlertCircle/XCircle para error em vermelho), seguindo as cores já usadas no app (emerald-500, red-500).
-
-2. **`ConfirmDialog`** — modal de confirmação com botões "Cancelar" (secundário) e "Confirmar" (destrutivo, vermelho).
-   - Props: `{ isOpen, onClose, onConfirm, title?, message, confirmLabel? }`
-
-Ambos exportados e importados em `App.tsx`.
-
-## Mudanças em `App.tsx`
-1. Importar `AlertDialog` e `ConfirmDialog` de `./components/FeedbackDialogs`.
-2. Adicionar estados no componente principal `App`:
-   - `const [alertDialog, setAlertDialog] = useState<{type:'success'|'error', title?:string, message:string} | null>(null)`
-   - `const [confirmDialog, setConfirmDialog] = useState<{message:string, onConfirm: () => void} | null>(null)`
-3. Substituir cada `alert(...)` (L151, L165, L167, L184, L676) por `setAlertDialog({...})` com o `type` apropriado (success para L165, error para os demais).
-4. Renderizar `<AlertDialog isOpen={!!alertDialog} ... onClose={() => setAlertDialog(null)} />` próximo de onde `CreateResourceModal` é renderizado (perto de L820).
-5. Cancelamento de reserva (L668-682): trocar o `onClick` direto por abertura de `ConfirmDialog` ("Tem certeza que deseja cancelar esta reserva?"); ao confirmar, executar a lógica atual de `apiDeleteReservation` + refetch, fechando o modal. Erros desse fluxo também usam `setAlertDialog`.
-6. Renderizar `<ConfirmDialog isOpen={!!confirmDialog} onConfirm={...} onClose={() => setConfirmDialog(null)} />` no mesmo lugar.
-
-## Mudanças em `CreateResourceModal` (App.tsx:827-997)
-- L849: trocar `alert('Por favor, preencha todos os campos e selecione uma foto.')` por elevar o estado de erro para o `App` via `setAlertDialog` (passar uma prop `onValidationError` ao `CreateResourceModal`, ou simplesmente mostrar a mensagem inline no próprio modal usando o mesmo padrão de erro já usado na tela de login: `<p className="text-center text-sm text-red-400 bg-red-500/10 border border-red-500/30 rounded-2xl py-3 px-4">`). Optar pela versão inline (mais simples, sem precisar empilhar modais).
-
-## Verificação
-- Rodar `npm run dev` em `frontend/` e testar manualmente:
-  - Reserva com conflito de horário → AlertDialog de erro
-  - Reserva com sucesso → AlertDialog de sucesso
-  - Criar recurso sem preencher campos → erro inline no modal
-  - Cancelar reserva → ConfirmDialog antes de excluir
-- Verificar `npx tsc --noEmit` para garantir tipos corretos.
 
 
 ### Contribuições de Vitória (Branch: feature/testes)
@@ -318,7 +272,3 @@ Utilizada em sessões pontuais durante o desenvolvimento dos testes do laborató
 Projeto acadêmico — **SmartReserve** (C14-INATEL). Consulte o repositório no GitHub para a lista atual de integrantes e contribuições.
 
 ---
-
-
-
-
