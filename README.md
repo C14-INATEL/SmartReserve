@@ -301,6 +301,41 @@ Dinâmica de uso
 Utilizada em sessões pontuais durante o desenvolvimento dos testes do laboratório de C214, servindo como apoio para definição de cenários, interpretação de falhas e revisão da lógica esperada nas funcionalidades. As sugestões foram adaptadas conforme o código do projeto e validadas localmente antes da entrega final.
 
 
+
+### Contribuições de Isabella (Branch: feature/reservation-routes)
+
+Para quê foi usada - Isabella:
+
+* Apoio na padronização do backend para ES Modules, substituindo `require` por `import`
+* Ajuste dos scripts iniciais do backend para execução em desenvolvimento e produção
+* Orientação sobre a estrutura inicial do servidor Express
+* Apoio na conexão do backend com o banco de dados
+* Organização do registro das rotas de reserva na API
+
+Exemplos reais de prompts
+
+Prompt 1
+
+Como posso padronizar meu backend Node.js para usar ES Modules em vez de CommonJS, ajustando o `package.json` e trocando `require` por `import`?
+
+Resposta aceita: a IA explicou que era necessário adicionar `"type": "module"` no `package.json` e substituir os imports antigos com `require(...)` pelo padrão `import ... from ...`, mantendo a consistência entre os arquivos do backend.
+
+Prompt 2
+
+Quais scripts devo deixar no `package.json` do backend para conseguir rodar o servidor em desenvolvimento e em produção?
+
+Resposta aceita: a IA sugeriu manter os scripts `dev` e `start`, usando `nodemon src/server.js` para desenvolvimento e `node src/server.js` para iniciar a aplicação normalmente.
+
+Prompt 3
+
+Como devo estruturar o arquivo principal do servidor Express para conectar ao banco de dados e registrar as rotas da API?
+
+Resposta aceita: a IA orientou a importar o Express, a função de conexão com o banco e as rotas de reserva, executar `connectDatabase()`, habilitar `express.json()` e registrar as rotas com `app.use("/api", reservationRoutes)`.
+
+Dinâmica de uso
+
+Utilizada em sessões pontuais durante a organização inicial do backend do SmartReserve, servindo como apoio para padronizar o uso de módulos ES, ajustar os scripts básicos de execução e estruturar o servidor Express com conexão ao banco de dados e rotas da API. As sugestões foram revisadas e adaptadas conforme a estrutura do projeto antes de serem incorporadas ao código.
+
 ---
 
 ## Equipe
