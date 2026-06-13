@@ -336,6 +336,49 @@ Dinâmica de uso
 
 Utilizada em sessões pontuais durante a organização inicial do backend do SmartReserve, servindo como apoio para padronizar o uso de módulos ES, ajustar os scripts básicos de execução e estruturar o servidor Express com conexão ao banco de dados e rotas da API. As sugestões foram revisadas e adaptadas conforme a estrutura do projeto antes de serem incorporadas ao código.
 
+### Contribuições de Álvaro (Branch: feature/mongoose-schemas / feature/integracao-api-matricula)
+
+Para quê foi usada — Álvaro:
+
+- Revisão crítica do schema Mongoose de Usuários antes de aprovar o PR do colega
+- Criação dos schemas Mongoose de Recursos (Salas, Laboratórios, Equipamentos) e Reservas com relacionamento entre coleções
+- Implementação da conexão com o MongoDB em arquivo separado com tratamento de erro e suporte a variável de ambiente
+- Reestruturação do modelo `User` para autenticação por matrícula (modelo institucional), substituindo e-mail por `matricula` com trim automático
+- Criação da rota `POST /api/auth/login` e remoção do cadastro público de usuários
+- Extração das funções puras de manipulação de horário (`horaParaMinutos`, `minutosParaHora`, `intervalosSobrepoem`, `inicioEFimDoDia`) para o módulo `src/utils/reservationTime.js`
+- Criação de 4 testes unitários cobrindo parsing de hora, formatos inválidos, sobreposição de intervalos e reversibilidade de conversão
+- Integração completa do frontend com a API (substituição de mockData por chamadas reais, sessão em `sessionStorage`, tratamento de erros na UI)
+
+Exemplos reais de prompts
+
+Prompt 1
+
+Tenho um schema Mongoose de usuário feito por um colega com os campos nome, email e senha. Ele usa required e unique no email, e timestamps. Posso aceitar esse PR ou tem algum problema de segurança ou boas práticas que eu deveria apontar antes?
+
+Resposta aceita: a IA analisou o schema, confirmou que a estrutura estava correta para a task pedida e apontou melhorias opcionais como `select: false` na senha e validação de formato de e-mail, deixando claro que nenhuma delas era obrigatória para a entrega. Com isso, foi possível aceitar o PR com consciência do que estava sendo aprovado.
+
+Prompt 2
+
+Crie um schema Mongoose para Recursos, contemplando os tipos sala, laboratório e equipamento, com nome, descrição e horários disponíveis por dia da semana. Crie também um schema de Reservas que relacione usuário, recurso, data e horário de início e fim.
+
+Resposta aceita: a IA gerou os schemas `RecursoSchema` e `ReservaSchema` com os campos corretos, usando `enum` para restringir os tipos de recurso e `ObjectId` com `ref` para os relacionamentos entre coleções, além de `timestamps: true` em ambos.
+
+Prompt 3
+
+O sistema é para uma instituição de ensino que gerencia o acesso com matrícula e senha, sem cadastro público. Como devo reestruturar o modelo User e criar a rota de login adequada para esse contexto?
+
+Resposta aceita: a IA sugeriu substituir o campo `email` por `matricula` com `trim: true` no schema, adicionar o campo `role` com default `"user"`, criar a rota `POST /api/auth/login` validando matrícula normalizada e senha em texto puro (ainda sem hash nessa etapa), e remover completamente a rota de cadastro público para refletir o fluxo institucional real.
+
+Prompt 4
+
+Quero extrair as funções de manipulação de horário (converter string para minutos, verificar sobreposição de intervalos) da rota de reservas para um módulo separado, de forma que possam ser testadas unitariamente sem depender do Express ou do MongoDB.
+
+Resposta aceita: a IA recomendou criar o arquivo `src/utils/reservationTime.js` exportando as funções puras com `export function`, e reescrever `reservationRoutes.js` importando-as. Isso permitiu criar os 4 testes unitários diretamente sobre a lógica de negócio, sem mock de HTTP ou banco de dados.
+
+Dinâmica de uso
+
+Utilizada em três momentos distintos: (1) como ferramenta de revisão de código antes de aprovar PRs de colegas, com perguntas deliberadas sobre o que poderia estar errado; (2) como suporte à criação e refatoração de código no backend, sempre com ajustes manuais para alinhar ao padrão do projeto; (3) para estruturar testes unitários isolados, optando por extrair a lógica pura antes de testar para não depender de mocks desnecessários. As sugestões foram avaliadas criticamente e adaptadas antes de cada commit.
+
 ---
 
 ## Equipe
