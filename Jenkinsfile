@@ -41,8 +41,13 @@ pipeline {
     }
 
     post {
+        always {
+            echo 'Limpando o workspace de forma segura...'
+            cleanWs()
+        }
+
         success {
-            echo 'Pipeline executado com sucesso!'
+            echo 'Pipeline executada com sucesso!'
         }
 
         failure {
