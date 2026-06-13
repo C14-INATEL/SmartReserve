@@ -153,6 +153,45 @@ npm run preview   # testar o build localmente
 
 ---
 
+## Pipeline Jenkins
+
+O projeto possui um `Jenkinsfile` configurado para:
+
+- instalar as dependências do backend;
+- executar os testes do backend;
+- instalar as dependências do frontend;
+- gerar o build de produção do frontend;
+- limpar o workspace ao final da execução.
+
+Para executar a pipeline no Jenkins, é necessário ter os seguintes plugins instalados:
+
+- NodeJS Plugin
+- Workspace Cleanup Plugin
+
+Também é necessário configurar uma instalação do Node.js no Jenkins com o nome `NodeJS`.
+
+Caminho no Jenkins:
+
+```text
+Manage Jenkins > Tools > NodeJS installations
+```
+
+O nome configurado deve ser exatamente:
+
+```text
+NodeJS
+```
+
+A limpeza do workspace é feita com:
+
+```groovy
+cleanWs()
+```
+
+Esse comando limpa apenas o workspace usado pelo job no Jenkins, evitando que arquivos de execuções anteriores interfiram nas próximas execuções.
+
+---
+
 ## Uso Transparente de IA
 
 Em conformidade com as diretrizes do projeto e boas práticas de Engenharia de Software, declaramos o uso de Inteligência Artificial (modelos da família Gemini) como ferramenta de auxílio durante o desenvolvimento.
